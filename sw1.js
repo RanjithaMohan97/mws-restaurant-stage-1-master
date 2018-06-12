@@ -3,6 +3,7 @@ let cacheName = 'res-v1';
 self.addEventListener('install', function(event) {
 	event.waitUntil(
 		caches.open(cacheName).then(function(cache) {
+			console.log('Opened cache');
 			return cache.addAll([
 				'/',
 				'index.html',
@@ -35,7 +36,7 @@ self.addEventListener('activate',  function(event) {
   			cname.filter(function(cacheNames){
   				return cacheNames.startsWith('res-')&&cacheNames!=cacheName;
   			}).map(function(cacheNames){
-  				return cache.delete(cacheNames);
+  				return caches.delete(cacheNames);
   			})
   			);
 
@@ -43,14 +44,10 @@ self.addEventListener('activate',  function(event) {
   );
 });
 self.addEventListener('fetch', function(event){
-	console.log("hello");
-	event.respondWith(
-		caches.match(event.request).then(function(response) {
-			if (response)
-				{return response;}
-			
-			return fetch(event.response);
 	
+	event.respondWith(
+		caches.match(event.request,{ignoreSearch:true}).then(function(response) {
+			return response || fetch(event.request);
 		})
 		);
 });
